@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -e
+set -x
 
 export INTEGRATION_ROOT=./integration-tmp
 export TMPC_ROOT=./integration-tmp/tmpc
@@ -154,14 +155,17 @@ function run_multi_consul_tests() {
     # Test multi node configuration with a global scope test driver backed by consul
 
     ## Setup
-    start_dnet 1 multi_consul consul 1>>${INTEGRATION_ROOT}/test.log 2>&1
+    start_dnet 1 multi_consul consul #1>>${INTEGRATION_ROOT}/test.log 2>&1
     cmap[dnet-1-multi_consul]=dnet-1-multi_consul
-    start_dnet 2 multi_consul consul 1>>${INTEGRATION_ROOT}/test.log 2>&1
+    start_dnet 2 multi_consul consul #1>>${INTEGRATION_ROOT}/test.log 2>&1
     cmap[dnet-2-multi_consul]=dnet-2-multi_consul
-    start_dnet 3 multi_consul consul 1>>${INTEGRATION_ROOT}/test.log 2>&1
+    start_dnet 3 multi_consul consul #1>>${INTEGRATION_ROOT}/test.log 2>&1
     cmap[dnet-3-multi_consul]=dnet-3-multi_consul
 
     ## Run the test cases
+    docker version
+    docker info
+    dnet_cmd $(inst_id2port 2) service ls
     ./integration-tmp/bin/bats ./test/integration/dnet/multi.bats
 
     ## Teardown

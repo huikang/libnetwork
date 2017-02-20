@@ -15,6 +15,8 @@ function is_network_exist() {
 }
 
 @test "Test multinode network create" {
+    set -x
+
     echo $(docker ps)
     for i in `seq 1 3`;
     do
@@ -37,6 +39,8 @@ function is_network_exist() {
 	dnet_cmd $(inst_id2port 1) network ls
 	[ "$nresult" = "false" ]
     done
+
+    set +x
 }
 
 @test "Test multinode service create" {
