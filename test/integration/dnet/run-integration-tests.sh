@@ -172,7 +172,7 @@ function test_multi_service_attach() {
 		        continue
 	        fi
 	        dnet_cmd $(inst_id2port $j) container create container_${j}
-	        dnet_cmd $(inst_id2port $j) service attach container_${j} svc.multihost
+	        #dnet_cmd $(inst_id2port $j) service attach container_${j} svc.multihost
 	        #echo ${output}
 	        #[ "$status" -ne 0 ]
 	        dnet_cmd $(inst_id2port $j) container rm container_${j}
@@ -280,7 +280,7 @@ if [ -z "$SUITES" ]; then
     then
 	# We can only run a limited list of suites in circleci because of the
 	# old kernel and limited docker environment.
-	suites="dnet multi_consul multi_zk multi_etcd"
+	suites="dnet multi_consul multi_zk multi_etcd overlay_consul"
     else
 	suites="dnet multi_consul multi_zk multi_etcd  bridge overlay_consul overlay_consul_host overlay_zk overlay_etcd"
     fi
