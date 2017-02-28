@@ -122,6 +122,8 @@ func processConfig(cfg *config.Config) []config.Option {
 		options = append(options, config.OptionKVProviderURL(dcfg.Client.Address))
 	}
 
+	options = append(options, config.OptionDataDir(cfg.Daemon.DataDir))
+
 	dOptions, err := startDiscovery(&cfg.Cluster)
 	if err != nil {
 		logrus.Infof("Skipping discovery : %s", err.Error())
@@ -257,6 +259,9 @@ func (d *dnetConnection) dnetDaemon(cfgFile string) error {
 	} else {
 		logrus.Errorf("Error parsing config %v", err)
 	}
+
+	fmt.Printf("----> datadir: %s\n", cfg.Daemon.DataDir)
+	// fmt.Printf("----> Local address: %s\n", cfg.Scopes[datastore.LocalScope].Client.Address)
 
 	bridgeConfig := options.Generic{
 		"EnableIPForwarding": true,

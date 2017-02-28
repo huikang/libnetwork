@@ -44,6 +44,7 @@ func (c *controller) initStores() error {
 	c.Unlock()
 
 	for scope, scfg := range scopeConfigs {
+		fmt.Println("---> Controller scope:", scope)
 		if err := c.initScopedStore(scope, scfg); err != nil {
 			return err
 		}

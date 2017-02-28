@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/BurntSushi/toml"
@@ -48,6 +49,7 @@ type ClusterCfg struct {
 // LoadDefaultScopes loads default scope configs for scopes which
 // doesn't have explicit user specified configs.
 func (c *Config) LoadDefaultScopes(dataDir string) {
+	fmt.Printf("----> In LoadDefault datadir: %s\n", dataDir)
 	for k, v := range datastore.DefaultScopes(dataDir) {
 		if _, ok := c.Scopes[k]; !ok {
 			c.Scopes[k] = v
@@ -65,6 +67,9 @@ func ParseConfig(tomlCfgFile string) (*Config, error) {
 		return nil, err
 	}
 
+	// fmt.Printf("----> In Parseconfig datadir: %s\n", cfg.Daemon.DataDir)
+	// fmt.Printf("----> In Parseconfig datadir: %s\n", cfg.Scopes[datastore.LocalScope].Client.Address)
+	// cfg.LoadDefaultScopes(cfg.Scopes[datastore.LocalScope].Client.Address)
 	cfg.LoadDefaultScopes(cfg.Daemon.DataDir)
 	return cfg, nil
 }
@@ -81,6 +86,7 @@ func ParseConfigOptions(cfgOptions ...Option) *Config {
 	}
 
 	cfg.ProcessOptions(cfgOptions...)
+	// cfg.LoadDefaultScopes(cfg.Scopes[datastore.LocalScope].Client.Address)
 	cfg.LoadDefaultScopes(cfg.Daemon.DataDir)
 
 	return cfg
@@ -255,6 +261,7 @@ func OptionLocalKVProvider(provider string) Option {
 func OptionLocalKVProviderURL(url string) Option {
 	return func(c *Config) {
 		logrus.Debugf("Option OptionLocalKVProviderURL: %s", url)
+		fmt.Println("--->Option OptionLocalKVProviderURL: %s", url)
 		if _, ok := c.Scopes[datastore.LocalScope]; !ok {
 			c.Scopes[datastore.LocalScope] = &datastore.ScopeCfg{}
 		}

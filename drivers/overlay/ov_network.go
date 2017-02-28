@@ -659,14 +659,18 @@ func (n *network) watchMiss(nlSock *nl.NetlinkSocket) {
 
 			logrus.Debugf("miss notification for dest IP, %v", neigh.IP.String())
 
-			if neigh.State&(netlink.NUD_STALE|netlink.NUD_INCOMPLETE) == 0 {
-				continue
-			}
+			/*
+				if neigh.State&(netlink.NUD_STALE|netlink.NUD_INCOMPLETE) == 0 {
+					logrus.Debugf("---> skip due to neigh state: %v", neigh.State)
+					continue
+				}
+			*/
 
 			if !n.driver.isSerfAlive() {
 				continue
 			}
 
+			logrus.Debugf("---> To call resolvePeer")
 			mac, IPmask, vtep, err := n.driver.resolvePeer(n.id, neigh.IP)
 			if err != nil {
 				logrus.Errorf("could not resolve peer %q: %v", neigh.IP, err)

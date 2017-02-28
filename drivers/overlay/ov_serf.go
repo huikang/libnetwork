@@ -115,6 +115,7 @@ func (d *driver) processEvent(u serf.UserEvent) {
 	}
 
 	if d.serfInstance.LocalMember().Addr.String() == vtepStr {
+		logrus.Debugf("Return on local member %s\n", vtepStr)
 		return
 	}
 
@@ -146,8 +147,8 @@ func (d *driver) processQuery(q *serf.Query) {
 		return
 	}
 
-	logrus.Debugf("Sending peer query resp mac %s, mask %s, vtep %s", peerMac, net.IP(peerIPMask), vtep)
-	q.Respond([]byte(fmt.Sprintf("%s %s %s", peerMac.String(), net.IP(peerIPMask).String(), vtep.String())))
+	logrus.Debugf("Sending peer query resp mac %s, mask %s, vtep %s, sender %s", peerMac, net.IP(peerIPMask), vtep, d.advertiseAddress)
+	q.Respond([]byte(fmt.Sprintf("%s %s %s %s", peerMac.String(), net.IP(peerIPMask).String(), vtep.String(), d.advertiseAddress)))
 }
 
 func (d *driver) resolvePeer(nid string, peerIP net.IP) (net.HardwareAddr, net.IPMask, net.IP, error) {
@@ -164,8 +165,8 @@ func (d *driver) resolvePeer(nid string, peerIP net.IP) (net.HardwareAddr, net.I
 	respCh := resp.ResponseCh()
 	select {
 	case r := <-respCh:
-		var macStr, maskStr, vtepStr string
-		if _, err := fmt.Sscan(string(r.Payload), &macStr, &maskStr, &vtepStr); err != nil {
+		var macStr, maskStr, vtepStr, sender string
+		if _, err := fmt.Sscan(string(r.Payload), &macStr, &maskStr, &vtepStr, &sender); err != nil {
 			return nil, nil, nil, fmt.Errorf("bad response %q for the resolve query: %v", string(r.Payload), err)
 		}
 
@@ -174,7 +175,7 @@ func (d *driver) resolvePeer(nid string, peerIP net.IP) (net.HardwareAddr, net.I
 			return nil, nil, nil, fmt.Errorf("failed to parse mac: %v", err)
 		}
 
-		logrus.Debugf("Received peer query response, mac %s, vtep %s, mask %s", macStr, vtepStr, maskStr)
+		logrus.Debugf("Received peer query response, mac %s, vtep %s, mask %s, sender &s", macStr, vtepStr, maskStr, sender)
 		return mac, net.IPMask(net.ParseIP(maskStr).To4()), net.ParseIP(vtepStr), nil
 
 	case <-time.After(time.Second):

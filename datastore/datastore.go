@@ -151,7 +151,9 @@ var rootChain = defaultRootChain
 
 // DefaultScopes returns a map of default scopes and its config for clients to use.
 func DefaultScopes(dataDir string) map[string]*ScopeCfg {
+	fmt.Printf("---> In DefaultScopes\n")
 	if dataDir != "" {
+		fmt.Printf("\t---> Local dir%s\n", dataDir)
 		defaultScopes[LocalScope].Client.Address = dataDir + "/network/files/local-kv.db"
 		return defaultScopes
 	}
@@ -224,6 +226,8 @@ func newClient(scope string, kv string, addr string, config *store.Config, cache
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("Make scope:", scope)
+	fmt.Println("Make newstore:", addrs)
 
 	ds := &datastore{scope: scope, store: store, active: true, watchCh: make(chan struct{}), sequential: sequential}
 	if cached {
@@ -249,6 +253,7 @@ func NewDataStore(scope string, cfg *ScopeCfg) (DataStore, error) {
 		cached = true
 	}
 
+	fmt.Println("NewDataStore:", cfg.Client.Address)
 	return newClient(scope, cfg.Client.Provider, cfg.Client.Address, cfg.Client.Config, cached)
 }
 
@@ -263,6 +268,8 @@ func NewDataStoreFromConfig(dsc discoverapi.DatastoreConfigData) (DataStore, err
 	if !ok && dsc.Config != nil {
 		return nil, fmt.Errorf("cannot parse store configuration: %v", dsc.Config)
 	}
+
+	fmt.Println("---> NewData from config dsc:", dsc.Address)
 
 	scopeCfg := &ScopeCfg{
 		Client: ScopeClientCfg{

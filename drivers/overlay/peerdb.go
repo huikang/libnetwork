@@ -141,6 +141,8 @@ func (d *driver) peerDbSearch(nid string, peerIP net.IP) (net.HardwareAddr, net.
 func (d *driver) peerDbAdd(nid, eid string, peerIP net.IP, peerIPMask net.IPMask,
 	peerMac net.HardwareAddr, vtep net.IP, isLocal bool) {
 
+	logrus.Debugf("---> In peerDbAdd: peerIP %s, peerMac %s, vtep %s, isLocal %v", net.IP(peerIP).String(), peerMac, net.IP(vtep).String(), isLocal)
+
 	peerDbWg.Wait()
 
 	d.peerDb.Lock()
