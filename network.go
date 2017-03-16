@@ -1271,6 +1271,7 @@ func (n *network) requestPoolHelper(ipam ipamapi.Ipam, addressSpace, preferredPo
 		if err != nil {
 			return "", nil, nil, err
 		}
+		logrus.Debugf("----> Done ipam.RequestPool")
 
 		// If the network belongs to global scope or the pool was
 		// explicitly chosen or it is invalid, do not perform the overlap check.
@@ -1344,6 +1345,7 @@ func (n *network) ipamAllocateVersion(ipVer int, ipam ipamapi.Ipam) error {
 		if err != nil {
 			return err
 		}
+		logrus.Debugf("----> Done Requestpool")
 
 		defer func() {
 			if err != nil {
@@ -1370,6 +1372,7 @@ func (n *network) ipamAllocateVersion(ipVer int, ipam ipamapi.Ipam) error {
 				return types.InternalErrorf("failed to allocate gateway (%v): %v", cfg.Gateway, err)
 			}
 		}
+		logrus.Debugf("----> Done RequestAddress")
 
 		// Auxiliary addresses must be part of the master address pool
 		// If they fall into the container addressable pool, libnetwork will reserve them

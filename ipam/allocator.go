@@ -240,7 +240,7 @@ retry:
 
 		goto retry
 	}
-
+	logrus.Debugf("----> To return allocator requestpool")
 	return k.String(), nw, nil, insert()
 }
 
@@ -322,7 +322,7 @@ func (a *Allocator) parsePoolRequest(addressSpace, pool, subPool string, v6 bool
 }
 
 func (a *Allocator) insertBitMask(key SubnetKey, pool *net.IPNet) error {
-	//logrus.Debugf("Inserting bitmask (%s, %s)", key.String(), pool.String())
+	logrus.Debugf("Inserting bitmask (%s, %s)", key.String(), pool.String())
 
 	store := a.getStore(key.AddressSpace)
 	ipVer := getAddressVersion(pool.IP)

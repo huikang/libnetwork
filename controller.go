@@ -644,6 +644,7 @@ func (c *controller) RegisterDriver(networkType string, driver driverapi.Driver,
 // NewNetwork creates a new network of the specified network type. The options
 // are network specific and modeled in a generic way.
 func (c *controller) NewNetwork(networkType, name string, id string, options ...NetworkOption) (Network, error) {
+	logrus.Debugf("---> Controller new nentwork %v", name)
 	if id != "" {
 		c.networkLocker.Lock(id)
 		defer c.networkLocker.Unlock(id)
@@ -750,6 +751,7 @@ func (c *controller) NewNetwork(networkType, name string, id string, options ...
 		c.Unlock()
 	}
 
+	logrus.Debugf("---> Controller created new nentwork %v", name)
 	return network, nil
 }
 

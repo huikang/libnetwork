@@ -278,9 +278,20 @@ func (d *dnetConnection) dnetDaemon(cfgFile string) error {
 		return err
 	}
 	controller.SetClusterProvider(d)
-
 	if d.Orchestration.Agent || d.Orchestration.Manager {
 		d.configEvent <- struct{}{}
+	}
+
+	if d.IsManager() {
+		logrus.Debugf("---> This dnet is manager")
+	} else {
+		logrus.Debugf("---> This dnet is Not manager")
+	}
+
+	if d.IsAgent() {
+		logrus.Debugf("---> This dnet is agent")
+	} else {
+		logrus.Debugf("---> This dnet is Not agent")
 	}
 
 	createDefaultNetwork(controller)
