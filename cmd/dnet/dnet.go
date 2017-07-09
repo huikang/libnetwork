@@ -276,6 +276,10 @@ func (d *dnetConnection) dnetDaemon(cfgFile string) error {
 	controller.SetClusterProvider(d)
 
 	if d.Orchestration.Agent || d.Orchestration.Manager {
+		err = d.SetNetworkBootstrapKeys(controller)
+		if err != nil {
+			return fmt.Errorf("error set network keys %v", err)
+		}
 		d.configEvent <- cluster.EventNodeReady
 	}
 
@@ -299,6 +303,30 @@ func (d *dnetConnection) dnetDaemon(cfgFile string) error {
 	setupDumpStackTrap()
 
 	return http.ListenAndServe(d.addr, r)
+}
+
+func (d *dnetConnection) SetNetworkBootstrapKeys(c libnetwork.NetworkController) error {
+	var (
+		subsysGossip = "networking:gossip"
+		keyringSize  = 3
+	)
+	nwKeys := []*types.EncryptionKey{}
+	for i := 0; i < keyringSize; i++ {
+		nwKey := &types.EncryptionKey{
+			Subsystem:   subsysGossip,
+			Algorithm:   2,
+			Key:         []byte("testtesttesttest"),
+			LamportTime: 1,
+		}
+		nwKeys = append(nwKeys, nwKey)
+	}
+
+	err := c.SetKeys(nwKeys)
+	if err != nil {
+		return fmt.Errorf("err controller setkeys%v", err)
+	}
+	d.configEvent <- cluster.EventNetworkKeysAvailable
+	return nil
 }
 
 func (d *dnetConnection) IsManager() bool {
@@ -326,6 +354,7 @@ func (d *dnetConnection) GetListenAddress() string {
 }
 
 func (d *dnetConnection) GetRemoteAddressList() []string {
+	logrus.Infof("dnet peer : %s", d.Orchestration.Peer)
 	return []string{d.Orchestration.Peer}
 }
 

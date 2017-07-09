@@ -53,6 +53,9 @@ const (
 
 	// ContainerIfacePrefix can be used to override the interface prefix used inside the container
 	ContainerIfacePrefix = Prefix + ".container_iface_prefix"
+
+	// Dynamic
+	EnableDynamic = Prefix + ".enable_dynamic"
 )
 
 var (

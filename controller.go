@@ -313,16 +313,20 @@ func (c *controller) clusterAgentInit() {
 		case cluster.EventNetworkKeysAvailable:
 			// Validates that the keys are actually available before starting the initialization
 			// This will handle old spurious messages left on the channel
+			logrus.Warn("Receive EventNetworkKeysAvailable")
 			c.Lock()
 			keysAvailable = c.keys != nil
 			c.Unlock()
 			fallthrough
 		case cluster.EventSocketChange, cluster.EventNodeReady:
+			logrus.Warn("Receive EventNodeReady")
+			logrus.Warnf("keysAvailable %v", keysAvailable)
 			if keysAvailable && !c.isDistributedControl() {
 				c.agentOperationStart()
 				if err := c.agentSetup(clusterProvider); err != nil {
 					c.agentStopComplete()
 				} else {
+					logrus.Warn("agentInitComplete")
 					c.agentInitComplete()
 				}
 			}

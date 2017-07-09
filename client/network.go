@@ -47,6 +47,7 @@ func (cli *NetworkCli) CmdNetworkCreate(chain string, args ...string) error {
 	flOpts := cmd.String([]string{"o", "-opt"}, "", "Network options")
 	flInternal := cmd.Bool([]string{"-internal"}, false, "Config the network to be internal")
 	flIPv6 := cmd.Bool([]string{"-ipv6"}, false, "Enable IPv6 on the network")
+	flDynamic := cmd.Bool([]string{"-dynamic"}, false, "Config the network to be dynamic")
 	flSubnet := cmd.String([]string{"-subnet"}, "", "Subnet option")
 	flRange := cmd.String([]string{"-ip-range"}, "", "Range option")
 
@@ -61,6 +62,9 @@ func (cli *NetworkCli) CmdNetworkCreate(chain string, args ...string) error {
 	}
 	if *flIPv6 {
 		networkOpts[netlabel.EnableIPv6] = "true"
+	}
+	if *flDynamic {
+		networkOpts[netlabel.EnableDynamic] = "true"
 	}
 
 	driverOpts := make(map[string]string)

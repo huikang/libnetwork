@@ -205,10 +205,12 @@ func (c *controller) agentSetup(clusterProvider cluster.Provider) error {
 	advAddr := clusterProvider.GetAdvertiseAddress()
 	dataAddr := clusterProvider.GetDataPathAddress()
 	remoteList := clusterProvider.GetRemoteAddressList()
+	logrus.Warnf("remoteList %v", remoteList)
 	remoteAddrList := make([]string, 0, len(remoteList))
 	for _, remote := range remoteList {
 		addr, _, _ := net.SplitHostPort(remote)
 		remoteAddrList = append(remoteAddrList, addr)
+		logrus.Warnf("\taddr %v", addr)
 	}
 
 	listen := clusterProvider.GetListenAddress()

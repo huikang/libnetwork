@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/docker/libnetwork"
 	"github.com/docker/libnetwork/netlabel"
 	"github.com/docker/libnetwork/netutils"
@@ -306,6 +307,12 @@ func procCreateNetwork(c libnetwork.NetworkController, vars map[string]string, b
 	}
 	if len(create.DriverOpts) > 0 {
 		options = append(options, libnetwork.NetworkOptionDriverOpts(create.DriverOpts))
+	}
+
+	if _, ok := create.NetworkOpts[netlabel.EnableDynamic]; ok {
+		logrus.Warnf("Config network to be dynamic")
+		options = append(options, libnetwork.NetworkOptionDynamic())
+		options = append(options, libnetwork.NetworkOptionPersist(false))
 	}
 
 	if len(create.IPv4Conf) > 0 {
