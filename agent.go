@@ -215,7 +215,7 @@ func (c *controller) agentSetup(clusterProvider cluster.Provider) error {
 
 	listen := clusterProvider.GetListenAddress()
 	listenAddr, _, _ := net.SplitHostPort(listen)
-
+	// listenAddr := "192.168.121.107"
 	logrus.Infof("Initializing Libnetwork Agent Listen-Addr=%s Local-addr=%s Adv-addr=%s Data-addr=%s Remote-addr-list=%v",
 		listenAddr, bindAddr, advAddr, dataAddr, remoteAddrList)
 	if advAddr != "" && agent == nil {
@@ -243,6 +243,14 @@ func (c *controller) agentSetup(clusterProvider cluster.Provider) error {
 // For a given subsystem getKeys sorts the keys by lamport time and returns
 // slice of keys and lamport time which can used as a unique tag for the keys
 func (c *controller) getKeys(subsys string) ([][]byte, []uint64) {
+	logrus.Warnf("key subsys %s", subsys)
+	if subsys == "networking:ipsec" {
+		key0 := []byte("testtesttesttest")
+		key1 := []byte("testtesttesttest")
+		keys := [][]byte{key0, key1}
+		tags := []uint64{2, 2, 2}
+		return keys, tags
+	}
 	c.Lock()
 	defer c.Unlock()
 
@@ -251,12 +259,13 @@ func (c *controller) getKeys(subsys string) ([][]byte, []uint64) {
 	keys := [][]byte{}
 	tags := []uint64{}
 	for _, key := range c.keys {
+		logrus.Warnf("%s", key.Subsystem)
 		if key.Subsystem == subsys {
 			keys = append(keys, key.Key)
 			tags = append(tags, key.LamportTime)
 		}
 	}
-
+	logrus.Warnf("%v %v", keys, tags)
 	keys[0], keys[1] = keys[1], keys[0]
 	tags[0], tags[1] = tags[1], tags[0]
 	return keys, tags
@@ -279,11 +288,13 @@ func (c *controller) getPrimaryKeyTag(subsys string) ([]byte, uint64, error) {
 
 func (c *controller) agentInit(listenAddr, bindAddrOrInterface, advertiseAddr, dataPathAddr string) error {
 	bindAddr, err := resolveAddr(bindAddrOrInterface)
+	logrus.Warnf("bindaddr %v", bindAddr)
 	if err != nil {
 		return err
 	}
 
 	keys, _ := c.getKeys(subsysGossip)
+	logrus.Warnf("key size: %d", len(keys[0]))
 	hostname, _ := os.Hostname()
 	nodeName := hostname + "-" + stringid.TruncateID(stringid.GenerateRandomID())
 	logrus.Info("Gossip cluster hostname ", nodeName)
@@ -294,6 +305,7 @@ func (c *controller) agentInit(listenAddr, bindAddrOrInterface, advertiseAddr, d
 		NodeName:      nodeName,
 		Keys:          keys,
 	})
+	logrus.Warn("Created networkdb")
 
 	if err != nil {
 		return err

@@ -306,8 +306,10 @@ func (d *dnetConnection) dnetDaemon(cfgFile string) error {
 }
 
 func (d *dnetConnection) SetNetworkBootstrapKeys(c libnetwork.NetworkController) error {
+	// https://github.com/moby/moby/blob/05c7c311390911daebcf5d9519dee813fc02a887/daemon/cluster/executor/container/executor.go#L207
 	var (
 		subsysGossip = "networking:gossip"
+		subsysIPSec  = "networking:ipsec"
 		keyringSize  = 3
 	)
 	nwKeys := []*types.EncryptionKey{}
@@ -325,6 +327,24 @@ func (d *dnetConnection) SetNetworkBootstrapKeys(c libnetwork.NetworkController)
 	if err != nil {
 		return fmt.Errorf("err controller setkeys%v", err)
 	}
+
+
+	snwKeys := []*types.EncryptionKey{}
+	for i := 0; i < keyringSize; i++ {
+		nwKey := &types.EncryptionKey{
+			Subsystem:   subsysIPSec,
+			Algorithm:   100,
+			Key:         []byte("testtesttestsecc"),
+			LamportTime: 1006,
+		}
+		snwKeys = append(snwKeys, nwKey)
+	}
+
+	// err = c.SetKeys(snwKeys)
+	if err != nil {
+		return fmt.Errorf("err controller setkeys%v", err)
+	}
+	
 	d.configEvent <- cluster.EventNetworkKeysAvailable
 	return nil
 }

@@ -241,7 +241,9 @@ func validateSelf(node string) error {
 }
 
 func (d *driver) nodeJoin(advertiseAddress, bindAddress string, self bool) {
+	logrus.Warnf("Nodejoin advaddr %s, bindaddr %s, self %v", advertiseAddress, bindAddress, self)
 	if self && !d.isSerfAlive() {
+		logrus.Warnf("serf not alive")
 		d.Lock()
 		d.advertiseAddress = advertiseAddress
 		d.bindAddress = bindAddress
@@ -258,6 +260,7 @@ func (d *driver) nodeJoin(advertiseAddress, bindAddress string, self bool) {
 			if err := validateSelf(advertiseAddress); err != nil {
 				logrus.Warnf("%s", err.Error())
 			}
+			logrus.Warnf("d store not nil, start serf")
 			err := d.serfInit()
 			if err != nil {
 				logrus.Errorf("initializing serf instance failed: %v", err)
@@ -320,14 +323,17 @@ func (d *driver) pushLocalEndpointEvent(action, nid, eid string) {
 // DiscoverNew is a notification for a new discovery event, such as a new node joining a cluster
 func (d *driver) DiscoverNew(dType discoverapi.DiscoveryType, data interface{}) error {
 	var err error
+	logrus.Warnf("------> In overlay Discovernew")
 	switch dType {
 	case discoverapi.NodeDiscovery:
+		logrus.Warnf("------> Node discovery")
 		nodeData, ok := data.(discoverapi.NodeDiscoveryData)
 		if !ok || nodeData.Address == "" {
 			return fmt.Errorf("invalid discovery data")
 		}
 		d.nodeJoin(nodeData.Address, nodeData.BindAddress, nodeData.Self)
 	case discoverapi.DatastoreConfig:
+		logrus.Warnf("------> datastoreconfig")
 		if d.store != nil {
 			return types.ForbiddenErrorf("cannot accept datastore configuration: Overlay driver has a datastore configured already")
 		}
